@@ -1,0 +1,33 @@
+name: Bug report
+description: Report an incorrect finding, missed unsafe migration, or CLI failure.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: migration
+    attributes:
+      label: Minimal migration
+      description: Remove application-specific names and secrets before posting.
+      render: php
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: PHP version
+      placeholder: 8.3.0
+    validations:
+      required: true

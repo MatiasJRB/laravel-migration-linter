@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatiasJRB/laravel-migration-linter/blob/main/resources/report.schema.json",
+  "title": "Laravel Migration Linter report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool_version",
+    "status",
+    "files_scanned",
+    "findings",
+    "errors"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": ["safe", "unsafe", "error"]
+    },
+    "files_scanned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/error"
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "severity", "message", "suggestion", "file", "line", "table", "operation"],
+      "properties": {
+        "rule": {"type": "string"},
+        "severity": {"enum": ["error", "warning"]},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"},
+        "file": {"type": "string"},
+        "line": {"type": "integer", "minimum": 1},
+        "table": {"type": ["string", "null"]},
+        "operation": {"type": "string"}
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message", "file", "line"],
+      "properties": {
+        "message": {"type": "string"},
+        "file": {"type": ["string", "null"]},
+        "line": {"type": ["integer", "null"], "minimum": 1}
+      }
+    }
+  }
+}

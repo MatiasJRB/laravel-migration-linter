@@ -1,0 +1,25 @@
+name: Rule or feature request
+description: Propose a new safety rule, syntax form, formatter, or integration.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: risk
+    attributes:
+      label: Production risk
+      description: What failure mode should this detect?
+    validations:
+      required: true
+  - type: textarea
+    id: syntax
+    attributes:
+      label: Laravel migration syntax
+      render: php
+    validations:
+      required: true
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Safer alternative
+    validations:
+      required: true

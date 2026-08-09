@@ -1,0 +1,76 @@
+{
+    "name": "matiasjrb/laravel-migration-linter",
+    "description": "Static safety analysis for Laravel database migrations.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "migrations",
+        "database",
+        "linter",
+        "static-analysis",
+        "ci"
+    ],
+    "authors": [
+        {
+            "name": "Matias Rios",
+            "homepage": "https://matiasjrb.com.ar"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/MatiasJRB/laravel-migration-linter/issues",
+        "source": "https://github.com/MatiasJRB/laravel-migration-linter"
+    },
+    "require": {
+        "php": "^8.2",
+        "nikic/php-parser": "^5.6",
+        "symfony/console": "^6.4 || ^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "MatiasJRB\\LaravelMigrationLinter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MatiasJRB\\LaravelMigrationLinter\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/laravel-migration-linter"
+    ],
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "check": [
+            "@test",
+            "@analyse"
+        ]
+    },
+    "config": {
+        "allow-plugins": {},
+        "sort-packages": true
+    },
+    "archive": {
+        "exclude": [
+            "/.github",
+            "/.phpstan.cache",
+            "/.phpunit.cache",
+            "/build",
+            "/tests",
+            "/vendor",
+            "/.editorconfig",
+            "/.gitattributes",
+            "/.gitignore",
+            "/composer.lock",
+            "/phpstan.neon.dist",
+            "/phpunit.xml.dist"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
