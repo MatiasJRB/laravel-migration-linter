@@ -114,8 +114,6 @@ final class MigrationAnalyzer
             return false;
         }
 
-        $parts = $class->extends->getParts();
-
-        return strtolower((string) end($parts)) === 'migration';
+        return strtolower($class->extends->getLast()) === 'migration';
     }
 }

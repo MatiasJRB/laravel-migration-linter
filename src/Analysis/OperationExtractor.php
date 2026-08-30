@@ -291,9 +291,7 @@ final class OperationExtractor
             return null;
         }
 
-        $parts = $call->class->getParts();
-
-        return strtolower((string) end($parts));
+        return strtolower($call->class->getLast());
     }
 
     private function methodName(Node $node): ?string
