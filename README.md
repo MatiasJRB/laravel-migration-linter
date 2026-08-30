@@ -34,6 +34,7 @@ The linter intentionally ignores `down()`: production rollback should be an expl
 ## Requirements
 
 - PHP 8.2 or newer.
+- PHP-Parser 4.15 or 5.6 and newer.
 - Laravel-style PHP migration files. Laravel itself is not required at analysis time.
 
 ## Installation

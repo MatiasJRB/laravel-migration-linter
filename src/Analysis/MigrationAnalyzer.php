@@ -14,6 +14,8 @@ use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use ReflectionClass;
+use ReflectionMethod;
 
 final class MigrationAnalyzer
 {
@@ -21,7 +23,30 @@ final class MigrationAnalyzer
 
     public function __construct(?Parser $parser = null)
     {
-        $this->parser = $parser ?? (new ParserFactory())->createForNewestSupportedVersion();
+        $this->parser = $parser ?? self::createParser();
+    }
+
+    private static function createParser(): Parser
+    {
+        $factory = new ParserFactory();
+        $reflection = new ReflectionClass($factory);
+
+        if ($reflection->hasMethod('createForNewestSupportedVersion')) {
+            $parser = $reflection->getMethod('createForNewestSupportedVersion')->invoke($factory);
+        } else {
+            // PHP-Parser 4 exposes create() and PREFER_PHP7, while PHP-Parser 5
+            // replaced both with createForNewestSupportedVersion(). Reflection
+            // keeps both branches analyzable regardless of the installed major.
+            $create = new ReflectionMethod($factory, 'create');
+            $mode = constant(ParserFactory::class . '::PREFER_PHP7');
+            $parser = $create->invoke($factory, $mode);
+        }
+
+        if (!$parser instanceof Parser) {
+            throw new \LogicException('PHP-Parser factory did not return a parser instance.');
+        }
+
+        return $parser;
     }
 
     /** @return list<Operation> */

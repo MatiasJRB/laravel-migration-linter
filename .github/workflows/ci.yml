@@ -40,3 +40,76 @@ jobs:
           fi
       - run: composer audit
       - run: composer check
+
+  parser-compatibility:
+    name: PHP-Parser ${{ matrix.parser }} consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        parser: ["^4.15", "^5.6"]
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: shivammathur/setup-php@2.37.2
+        with:
+          php-version: "8.2"
+          coverage: none
+          tools: composer:v2
+
+      - name: Install as a clean consumer dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          consumer="$(mktemp -d)"
+          cat > "${consumer}/composer.json" <<JSON
+          {
+            "name": "matiasjrb/parser-compatibility-smoke",
+            "repositories": [
+              {
+                "type": "path",
+                "url": "${GITHUB_WORKSPACE}",
+                "options": {"symlink": false}
+              }
+            ],
+            "require": {
+              "matiasjrb/laravel-migration-linter": "dev-main",
+              "nikic/php-parser": "${{ matrix.parser }}"
+            },
+            "minimum-stability": "dev",
+            "prefer-stable": true
+          }
+          JSON
+
+          composer update \
+            --working-dir="${consumer}" \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress
+
+          mkdir -p "${consumer}/database/migrations"
+          cat > "${consumer}/database/migrations/2026_01_01_000000_create_widgets.php" <<'PHP'
+          <?php
+
+          use Illuminate\Database\Migrations\Migration;
+          use Illuminate\Database\Schema\Blueprint;
+          use Illuminate\Support\Facades\Schema;
+
+          return new class extends Migration
+          {
+              public function up(): void
+              {
+                  Schema::create('widgets', function (Blueprint $table): void {
+                      $table->id();
+                      $table->string('name')->unique();
+                      $table->timestamps();
+                  });
+              }
+          };
+          PHP
+
+          composer show --working-dir="${consumer}" nikic/php-parser
+          cd "${consumer}"
+          vendor/bin/laravel-migration-linter database/migrations
