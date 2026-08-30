@@ -1,10 +1,11 @@
 {
     "name": "matiasjrb/laravel-migration-linter",
-    "description": "Static safety analysis for Laravel database migrations.",
+    "description": "Framework-independent safety analysis for Laravel migrations on established and current dependency stacks.",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "laravel",
+        "legacy-support",
         "migrations",
         "database",
         "linter",

@@ -4,7 +4,7 @@
 [![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Static safety analysis for Laravel database migrations. It inspects the `up()` method without booting Laravel or connecting to a database, then fails CI when a migration contains a change that is destructive, blocking, or unsafe to deploy alongside old application code.
+Framework-independent static safety analysis for Laravel database migrations, designed especially for established applications that cannot upgrade their framework tooling just to review a migration. It inspects the `up()` method without booting Laravel or connecting to a database, then reports changes that are destructive, blocking, or unsafe to deploy alongside old application code.
 
 ```text
 UNSAFE
@@ -13,11 +13,15 @@ UNSAFE
 Scanned 1 file(s): 1 finding(s), 0 error(s).
 ```
 
-## Why
+## Why this exists
 
 Laravel makes schema changes easy to express, but whether a change is safe depends on rollout order, table size, and database behavior. A migration can work locally and still lock a production table or break old application instances during a rolling deployment.
 
-Laravel Migration Linter provides a conservative, reviewable gate inspired by tools such as `strong_migrations` and `django-migration-linter`. Anything it cannot prove safe is reported for human review.
+This project started from a practical gap: an established Laravel application needed migration safety feedback while its dependency graph still used PHP-Parser 4. The available alternatives either targeted newer dependency stacks, operated on generated SQL instead of Laravel migration PHP, or did not fit an incremental CI rollout.
+
+Laravel Migration Linter therefore stays independent from Laravel itself and deliberately supports both PHP-Parser 4 and 5. It provides a conservative, reviewable gate inspired by tools such as `strong_migrations` and `django-migration-linter`. Anything it cannot prove safe is reported for human review.
+
+The goal is not to keep applications on old versions forever. It is to let teams improve migration safety now, without making a framework or static-analysis upgrade a prerequisite.
 
 ## What it detects
 
@@ -36,6 +40,13 @@ The linter intentionally ignores `down()`: production rollback should be an expl
 - PHP 8.2 or newer.
 - PHP-Parser 4.15 or 5.6 and newer.
 - Laravel-style PHP migration files. Laravel itself is not required at analysis time.
+
+### Compatibility scope
+
+- The CLI has no runtime dependency on Laravel, so it can be added to established and current Laravel applications without changing the framework version.
+- Clean-consumer CI runs against exact PHP-Parser 4.15.0 and the PHP-Parser 5.x line to protect both dependency paths.
+- The analyzer recognizes common `Schema` and `Blueprint` migration syntax. Project-specific macros can be allow-listed; unknown operations are reported rather than silently treated as safe.
+- This is targeted compatibility, not a promise to support every historical Laravel or PHP version. The explicit Composer constraints above are the support contract.
 
 ## Installation
 
@@ -124,6 +135,12 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: vendor/bin/laravel-migration-linter --format=markdown --output=build/migration-report.md
 ```
+
+## Recommended adoption
+
+For an existing production application, start with the linter on migrations added or modified by a pull request. Treat safety findings (`exit 1`) as advisory, but fail on analysis or configuration errors (`exit 2`). Keep database-aware controls such as SQL preview, real apply/rollback tests, and the existing deploy gate authoritative.
+
+After four to six weeks, review findings by rule, record false positives and promote only the rules with enough evidence to blocking status. See the [adoption guide](docs/adoption.md) for a concrete rollout and measurement template.
 
 ## Safety model
 
